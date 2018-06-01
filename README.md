@@ -19,6 +19,8 @@ search(function get (i, cb) {
 All arguments are mandatory. this assumes you are using integer
 indexes.
 
+note: `hi` is the highest index, not the length! highest index is length - 1!
+
 License
 -------
 
