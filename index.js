@@ -1,4 +1,8 @@
-module.exports = function(haystack, needle, comparator, low, high) {
+module.exports = function(haystack_get, needle, comparator, low, high, cb) {
+  if('function' !== typeof haystack_get)
+    throw new TypeError('binary-search-async: get(i, cb) function must be provided')
+  if('function' !== typeof comparator)
+    throw new TypeError('binary-search-async: compare(a,b) function must be provided')
   var mid, cmp;
 
   if(low === undefined)
@@ -6,38 +10,39 @@ module.exports = function(haystack, needle, comparator, low, high) {
 
   else {
     low = low|0;
-    if(low < 0 || low >= haystack.length)
+    if(low < 0 || low >= high)
       throw new RangeError("invalid lower bound");
   }
 
-  if(high === undefined)
-    high = haystack.length - 1;
+  high = high|0;
+  if(high == null)
+    throw new RangeError("upper bound must be provided");
 
-  else {
-    high = high|0;
-    if(high < low || high >= haystack.length)
-      throw new RangeError("invalid upper bound");
-  }
+  if(low > high) return cb(new Error('not found'))
 
-  while(low <= high) {
+  return (function next () {
     /* Note that "(low + high) >>> 1" may overflow, and results in a typecast
      * to double (which gives the wrong results). */
     mid = low + (high - low >> 1);
-    cmp = +comparator(haystack[mid], needle, mid, haystack);
+    return haystack_get(mid, function (err, value) {
+      if(err) return cb(err)
+      cmp = +comparator(value, needle, mid); //I is passed here, to check in tests.
+      /* Too low. */
+      if(cmp < 0.0)
+        low  = mid + 1;
 
-    /* Too low. */
-    if(cmp < 0.0)
-      low  = mid + 1;
+      /* Too high. */
+      else if(cmp > 0.0)
+        high = mid - 1;
 
-    /* Too high. */
-    else if(cmp > 0.0)
-      high = mid - 1;
+      /* Key found. */
+      else
+        return cb(null, mid, value);
 
-    /* Key found. */
-    else
-      return mid;
-  }
-
-  /* Key not found. */
-  return ~low;
+      /* Key not found. */
+      if(low <= high) return next()
+      else return cb(null, ~low, value)
+    })
+  })()
 }
+
