@@ -4,7 +4,11 @@ var tape = require('tape')
       arr = [1, 2, 2, 2, 3, 5, 9],
       cmp = function(a, b) { return a - b; };
 
-  var lo = 0, hi = arr.length
+  var lo = 0, hi = arr.length - 1
+
+  function getter(ary) {
+    return function (i, cb) { return cb(null, ary[i])}
+  }
 
   function get (i, cb) {
     return cb(null, arr[i])
@@ -52,7 +56,7 @@ var tape = require('tape')
     var decimals = [0.0, 0.1, 0.2, 0.3, 0.4]
     t.equal(bs(function (i, cb) {
       return cb(null, decimals[i])
-    }, 0.25, cmp, 0, 5, cb), -4);
+    }, 0.25, cmp, 0, decimals.length-1, cb), -4);
     t.end()
   });
 
@@ -62,10 +66,20 @@ var tape = require('tape')
           indexes.push(i);
           return cmp(a, b);
         };
-    bs(get, 3, indexCmp, 0, arr.length, cb);
+    bs(get, 3, indexCmp, 0, arr.length - 1, cb);
     t.deepEqual(indexes,[3, 5, 4])
     t.end()
   });
 
+  tape("single item", function(t) {
+    var five = [5]
+    t.equal(bs(getter(five), 5, cmp, 0, five.length - 1, cb), 0);
+    t.end()
+  });
 
+  tape("single item, over", function(t) {
+    var five = [5]
+    t.equal(bs(getter(five), 7, cmp, 0, five.length - 1, cb), -2);
+    t.end()
+  });
 
