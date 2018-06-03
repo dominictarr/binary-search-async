@@ -10,8 +10,8 @@ module.exports = function(haystack_get, needle, comparator, low, high, cb) {
 
   else {
     low = low|0;
-    if(low < 0 || low >= high)
-      throw new RangeError("invalid lower bound");
+    if(low < 0 || low > high)
+      throw new RangeError("invalid lower bound:"+low+', high:'+high);
   }
 
   high = high|0;
@@ -19,7 +19,6 @@ module.exports = function(haystack_get, needle, comparator, low, high, cb) {
     throw new RangeError("upper bound must be provided");
 
   if(low > high) return cb(new Error('not found'))
-
   return (function next () {
     /* Note that "(low + high) >>> 1" may overflow, and results in a typecast
      * to double (which gives the wrong results). */
