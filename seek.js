@@ -1,9 +1,25 @@
-var search = require('./')
+//var search = require('./')
 
 //after doing one binary search, do another one for a result
 //greater than the first extra cheaply.
 
+function search (get, target, compare, low, high, cb) {
+  var mid = low + (high - low >> 1)
+  return get(mid, function (err, value) {
+    if(low >= high)
+      return cb(null, low, value)
+
+    if(compare(value, target) <= 0)
+      return search(get, target, compare, mid+1, high, cb)
+    else
+      //don't decrease high, because we always want the value above.
+      return search(get, target, compare, low, mid, cb)
+
+  })
+}
+
 module.exports = function seek (get, target, compare, middle, low, high, cb) {
+  if(middle === high) return cb(new RangeError('out of bounds'))
   var prev_lo = low, prev_hi = high
   var lo = low, hi = high
   while(lo <= hi) {
@@ -16,19 +32,14 @@ module.exports = function seek (get, target, compare, middle, low, high, cb) {
   }
 
   return get(prev_hi, function (err, value) {
-    var c = compare(target, value)
-    if(c > 0) {//if value is still lower than target, kep looking.
-      if(prev_hi === high) return cb(null, ~prev_hi, value)
+    var c = compare(value, target)
+    if(c <= 0) //go higher!
       return seek(get, target, compare, prev_hi, low, high, cb)
+    else {
+      //we know middle is too low, what would we have done, binary
+      //searching, if we found our way to middle and decided it was too low?
+      return search(get, target, compare, middle+1, prev_hi, cb)
     }
-    else if(c < 0) {
-      return search(get, target, compare, prev_lo, prev_hi, cb)
-    }
-    else if(c == 0) {
-      return cb(null, prev_hi, value)
-    }
-    else
-      throw new Error('should never happen:'+c) //probably NaN
   })
 }
 
