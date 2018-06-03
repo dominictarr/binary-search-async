@@ -1,6 +1,6 @@
 {
   "name": "binary-search-async",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "async binary search",
   "license": "CC0-1.0",
   "author": {
@@ -23,6 +23,3 @@
     "test": "node test/index.js && node test/seek.js"
   }
 }
-
-
-
