@@ -1,6 +1,6 @@
 var tape = require('tape')
 
-  var bs  = require("./"),
+  var bs  = require("../"),
       arr = [1, 2, 2, 2, 3, 5, 9],
       cmp = function(a, b) { return a - b; };
 
