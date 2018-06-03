@@ -1,3 +1,4 @@
+'use strict'
 module.exports = function(haystack_get, needle, comparator, low, high, cb) {
   if('function' !== typeof haystack_get)
     throw new TypeError('binary-search-async: get(i, cb) function must be provided')
