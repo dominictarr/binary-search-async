@@ -14,7 +14,7 @@ function compare(a, b) {
   return a - b
 }
 
-var N = 1000
+var N = 100
 for(var i = 0; i < N; i++)
   a.push(Math.random())
 a.sort(compare)
@@ -53,6 +53,7 @@ function assertRange(t, r, i, a) {
 }
 
 tape(N+' random numbers', function (t) {
+//  return t.end()
   var r = Math.random() > 0.5 ? a[~~(Math.random()*a.length)] : Math.random()
   for(var j = 0; j < N; j++) {
     var ri = ~~(Math.random()*a.length)
@@ -64,32 +65,22 @@ tape(N+' random numbers', function (t) {
       for(var k = i+1; k < a.length-1; k++) {
         var r2 = a[k]
         var i2 = seek(get, r2, compare, i, 0, a.length-1, cb)
-//        console.log("SEEK", [i, i2], [r2, a[i2]], k)
         t.ok(i2 > i, 'seeked value should be greater')
-  //      console.log(i2, a[i2], r2)
         t.ok(a[i2] > r2, 'seek value is greater than')
         t.ok(i2 > i ,'seek index is creater than')
-//        return t.end()
-//        assertRange(t, r2, ~i2, a)
       }
     }
   }
 
-//  for(var j = 0; j < N; j++) {
-//    var r = Math.random()
-//    var r2 = r + ((1-r)*Math.random())
-//    var i = search(get, r, compare, 0, a.length-1, cb)
-//    assertRange(t, r, i, a)
-//    if(~i < a.length - 1) {
-//      var i2 = seek(get, r2, compare, ~i, 0, a.length-1, cb)
-//      t.ok(~i2 > i, 'seeked value should be greater')
-//      assertRange(t, r2, ~i2, a)
-//    }
-//  }
   t.end()
 })
-
+return
 tape('iterate', function (t) {
+  var N = 10, a = []
+  for(var i = 0; i < N; i++)
+    a.push(Math.random())
+  a.sort(compare)
+
   console.error('steps, distance, seek, search, efficiency.seeks,efficiency.search')
   for(var d = 1; d < N/2; d++) {
     var i = search(get, a[0], compare, 0, a.length-1, cb)
@@ -112,42 +103,4 @@ tape('iterate', function (t) {
 
   t.end()
 })
-return
-
-tape('seek returns the same value that search would have', function (t) {
-  for(var i = 0; i < a.length; i++) {
-    var _i = search(get, a[i], compare, 0, a.length-1, cb)
-    t.equal(_i, i)
-    if(i) {
-      var _i2 = seek(get, a[i], compare, i-1, 0, a.length-1, cb)
-      t.equal(_i2, i+1)
-    }
-  }
-  for(var i = 0; i < a.length; i++) {
-    var _i = ~search(get, a[i]-0.00001, compare, 0, a.length-1, cb)
-    t.equal(_i, i)
-    if(i) {
-      var _i2 = ~seek(get, a[i]-0.00001, compare, i-1, 0, a.length-1, cb)
-      t.equal(_i2, i)
-    }
-  }
-
-  for(var i = 0; i < a.length; i++) {
-    var _i2 = ~search(get, a[i]-0.00001, compare, 0, a.length-1, cb)
-    t.equal(_i2, i)
-  }
-  for(var i = 0; i < a.length; i++) {
-    var _i2 = ~seek(get, a[i]-0.00001, compare, 0, 0, a.length-1, cb)
-    t.equal(_i2, i)
-  }
-  for(var i = 0; i < a.length-1; i++) {
-    var _i2 = seek(get, a[i], compare, 0, 0, a.length-1, cb)
-    t.equal(_i2, i+1)
-  }
-
-  t.end()
-})
-
-
-
 

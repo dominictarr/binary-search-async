@@ -19,7 +19,7 @@ function search (get, target, compare, low, high, cb) {
 }
 
 module.exports = function seek (get, target, compare, middle, low, high, cb) {
-  if(middle === high) return cb(new RangeError('out of bounds'))
+  if(middle === high) return cb(null, high+1)
   var prev_lo = low, prev_hi = high
   var lo = low, hi = high
   while(lo <= hi) {
